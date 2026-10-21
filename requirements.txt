@@ -1,0 +1,6 @@
+fastapi>=0.110,<1
+uvicorn[standard]>=0.29,<1
+pydantic>=2.6,<3
+websockets>=12,<15
+playwright>=1.40
+pytest>=8,<9

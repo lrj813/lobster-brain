@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>龙虾脑</title>
+<style>
+:root { --bg:#f5f7fb; --card:#fff; --line:#e5eaf2; --text:#1c2b43; --muted:#65758b; --blue:#1769e0; --green:#18794e; --red:#c13939; --yellow:#946200; --gray:#95a2b3}
+
+* { box-sizing:border-box; margin:0; padding:0}
+body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif; -webkit-font-smoothing:antialiased; line-height:1.6}
+button,input { font:inherit}
+button,a,input { -webkit-tap-highlight-color:transparent}
+button { cursor:pointer}
+button:disabled { opacity:.55; cursor:wait}
+button:focus-visible,a:focus-visible,input:focus-visible { outline:3px solid #8bbcff; outline-offset:3px}
+a { color:var(--blue); text-decoration:none}
+a:hover { text-decoration:underline}
+.dot { display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--gray); flex-shrink:0}
+.dot.online,.dot.on { background:var(--green)}
+.badge,.st { display:inline-block; white-space:nowrap; border-radius:6px; padding:3px 9px; font-size:12px; font-weight:600; background:#edf1f6; color:var(--muted)}
+.badge.queued,.st.queued { background:#edf1f6; color:#53647a}
+.badge.dispatched,.st.dispatched { background:#eaf2ff; color:#1761c5}
+.badge.running,.st.running { background:#fff4d9; color:var(--yellow)}
+.badge.success,.st.success { background:#e9f6ef; color:var(--green)}
+.badge.failed,.st.failed { background:#fff0f0; color:var(--red)}
+.eyebrow { color:var(--blue); font-size:11px; font-weight:700; letter-spacing:2px; margin-bottom:6px}
+.page-note { font-size:12px; color:var(--muted)}
+@media(prefers-reduced-motion:reduce) { *,*::before,*::after { animation:none!important; transition:none!important}
+}
+
+
+body { max-width:760px; margin:0 auto; padding:28px 24px 40px}
+header { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:36px}
+.brand { font-size:21px; font-weight:750; letter-spacing:-.5px; display:flex; align-items:center; gap:10px}
+.brand-mark { display:grid; place-items:center; width:36px; height:36px; border-radius:12px; background:var(--blue); color:white; font-size:19px}
+.status { display:flex; align-items:center; gap:7px; font-size:12px; color:var(--muted); background:white; padding:7px 11px; border:1px solid var(--line); border-radius:20px}
+.intro { margin-bottom:24px}
+.intro h1 { font-size:30px; line-height:1.4; letter-spacing:-1px; margin-bottom:8px}
+.intro p { font-size:14px; color:var(--muted)}
+.composer { background:var(--card); border:1px solid var(--line); border-radius:20px; padding:24px; box-shadow:0 6px 24px #20375905; margin-bottom:30px}
+.section-label { display:block; font-size:14px; font-weight:650; margin-bottom:12px}
+.inputbar { display:flex; gap:10px; margin-bottom:18px}
+#cmd { flex:1; min-width:0; background:#f7f9fc; border:1px solid var(--line); border-radius:11px; padding:13px 14px; color:var(--text); font-size:16px; outline:none}
+#cmd:focus { border-color:var(--blue); background:white}
+#cmd::placeholder { color:#78869a}
+#send { background:var(--blue); border:0; border-radius:11px; color:white; font-size:14px; font-weight:650; padding:0 22px; min-height:48px}
+#send:hover { background:#1259c0}
+.chips { display:flex; flex-wrap:wrap; gap:8px}
+.chip { background:white; border:1px solid var(--line); border-radius:9px; padding:10px 12px; min-height:44px; font-size:12px; color:#42546e; text-align:left}
+.chip:hover { background:#f0f6ff; border-color:#bad4fa; color:var(--blue)}
+.chip:active { transform:translateY(1px)}
+.quick-label { font-size:11px; color:var(--muted); margin-bottom:9px}
+.section-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px}
+.section-head h2 { font-size:16px}
+.section-head span { font-size:11px; color:var(--muted)}
+.card { background:white; border:1px solid var(--line); border-radius:16px; padding:20px; margin-bottom:12px}
+.card-head { display:flex; align-items:center; gap:9px; margin-bottom:10px}
+.card-head .icon { font-size:17px}
+.card-head .label { font-size:14px; font-weight:650; min-width:0; overflow-wrap:anywhere}
+.badge { margin-left:auto}
+.cmd-text { font-size:13px; color:var(--muted); padding-bottom:14px; margin-bottom:14px; border-bottom:1px solid #f0f2f6; overflow-wrap:anywhere}
+.steps { display:flex; flex-direction:column; gap:10px}
+.step { display:flex; align-items:center; gap:10px; font-size:12px; color:var(--muted)}
+.sdot { width:7px; height:7px; border-radius:50%; background:#d7dfe9; flex-shrink:0}
+.step.running { color:var(--yellow)}
+.step.running .sdot { background:var(--yellow)}
+.step.done { color:#42546e}
+.step.done .sdot { background:var(--green)}
+.step.failed .sdot { background:var(--red)}
+.result { margin-top:16px; padding:12px 14px; border-radius:10px; font-size:13px; overflow-wrap:anywhere}
+.result.ok { background:#edf8f2; color:#216a49}
+.result.err { background:#fff1f1; color:var(--red)}
+.result img { display:block; width:100%; border-radius:8px; margin-top:12px}
+.meta { margin-top:14px; font-size:11px; color:var(--muted)}
+.empty { text-align:center; color:var(--muted); padding:44px 20px; font-size:13px; background:white; border:1px dashed #d5deec; border-radius:16px}
+footer { display:flex; justify-content:space-between; align-items:center; margin-top:28px; font-size:12px; color:var(--muted)}
+@media(max-width:480px) { body { padding:20px 16px 28px}
+header { margin-bottom:28px}
+.intro h1 { font-size:27px}
+.composer { padding:18px}
+.chip { flex-grow:1}
+.card { padding:17px}
+.status { font-size:11px; padding:6px 9px}
+#send { padding:0 16px}
+.section-head span { font-size:10px}
+}
+
+</style>
+</head>
+<body>
+  <header>
+    <div class="brand"><span class="brand-mark" aria-hidden="true">⌘</span>龙虾脑</div>
+    <div class="status"><span class="dot" id="dot"></span><span id="statusText">连接中…</span></div>
+  </header>
+
+  <main>
+  <section class="intro"><div class="eyebrow">YOUR PERSONAL REMOTE</div><h1>一句话，让电脑帮你做。</h1><p>搜索电影、管理会议，随时从手机发起。</p></section>
+  <section class="composer" aria-label="发送电脑指令">
+    <label class="section-label" for="cmd">你想让电脑做什么？</label>
+    <div class="inputbar"><input id="cmd" placeholder="例如：搜索一部科幻电影" autocomplete="off"><button id="send">发送</button></div>
+    <p class="quick-label">快捷指令 · 点击立即执行</p>
+    <div class="chips">
+      <button class="chip" data-cmd="搜索一部热门电影并播放相关视频">搜索电影并播放</button>
+      <button class="chip" data-cmd="停止播放">停止播放</button>
+      <button class="chip" data-cmd="加入腾讯会议，会议码 1234">加入会议 1234</button>
+      <button class="chip" data-cmd="创建一个腾讯会议">创建会议</button>
+      <button class="chip" data-cmd="退出会议">退出会议</button>
+    </div>
+  </section>
+  <div class="section-head"><h2>任务动态</h2><span>进度与结果自动更新</span></div>
+  <div id="list"><div class="empty">正在读取任务…</div></div>
+  </main><footer><span>你的电脑，随时响应。</span><a href="/admin">运营看板 ↗</a></footer>
+
+
+<script>
+  const $ = (s) => document.querySelector(s);
+  const list = $("#list");
+
+  const BADGE = { queued: "排队中", dispatched: "已下发", running: "执行中", success: "成功", failed: "失败" };
+
+  function esc(s) {
+    return (s == null ? "" : String(s)).replace(/[&<>"']/g, (c) => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+    }[c]));
+  }
+
+  function renderSteps(steps) {
+    if (!steps || !steps.length) return "";
+    return '<div class="steps">' + steps.map((s) => {
+      const cls = s.status === "done" ? "done" : s.status === "failed" ? "failed" : s.status === "running" ? "running" : "";
+      return `<div class="step ${cls}"><span class="sdot"></span><span>${esc(s.name)}</span></div>`;
+    }).join("") + "</div>";
+  }
+
+  function renderResult(t) {
+    if (t.status === "success" && t.result) {
+      const img = t.evidence ? `<img src="${t.evidence}" alt="截图">` : "";
+      return `<div class="result ok">✅ ${esc(t.result)}${img}</div>`;
+    }
+    if (t.status === "failed" && t.error) {
+      return `<div class="result err">⚠️ ${esc(t.error)}</div>`;
+    }
+    return "";
+  }
+
+  function renderTask(t) {
+    const badge = BADGE[t.status] || t.status;
+    return `<div class="card">
+      <div class="card-head">
+        <span class="icon">${esc(t.icon)}</span>
+        <span class="label">${esc(t.label)}</span>
+        <span class="badge ${t.status}">${badge}</span>
+      </div>
+      <div class="cmd-text">${esc(t.command)}</div>
+      ${renderSteps(t.steps)}
+      ${renderResult(t)}
+      <div class="meta">${t.duration != null ? "耗时 " + t.duration + "s · " : ""}${esc(t.device)}</div>
+    </div>`;
+  }
+
+  async function fetchTasks() {
+    try {
+      const res = await fetch("/api/tasks");
+      const tasks = await res.json();
+      if (!tasks.length) {
+        list.innerHTML = '<div class="empty">还没有任务，试试上面的快捷指令 👆</div>';
+        return;
+      }
+      list.innerHTML = tasks.map(renderTask).join("");
+    } catch (e) {
+      list.innerHTML = '<div class="empty">无法连接后端，请确认服务已启动</div>';
+    }
+  }
+
+  async function fetchDevice() {
+    try {
+      const res = await fetch("/api/device");
+      const d = await res.json();
+      const on = !!d.online;
+      $("#dot").className = "dot" + (on ? " online" : "");
+      $("#statusText").textContent = on ? "电脑在线" : "电脑离线";
+    } catch (e) {}
+  }
+
+  async function sendCommand(text) {
+    const t = (text || "").trim();
+    if (!t) return;
+    $("#send").disabled = true;
+    try {
+      await fetch("/api/command", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ command: t }),
+      });
+      $("#cmd").value = "";
+      await fetchTasks();
+    } finally {
+      $("#send").disabled = false;
+    }
+  }
+
+  $("#send").addEventListener("click", () => sendCommand($("#cmd").value));
+  $("#cmd").addEventListener("keydown", (e) => { if (e.key === "Enter") sendCommand($("#cmd").value); });
+  document.querySelectorAll(".chip").forEach((c) => {
+    c.addEventListener("click", () => sendCommand(c.dataset.cmd));
+  });
+
+  fetchTasks();
+  fetchDevice();
+  setInterval(fetchTasks, 900);
+  setInterval(fetchDevice, 3000);
+</script>
+</body>
+</html>

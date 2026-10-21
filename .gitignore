@@ -1,0 +1,14 @@
+.env
+.env.*
+!.env.example
+.venv/
+__pycache__/
+.pytest_cache/
+node_modules/
+.next/
+data/
+.vefaas/
+.DS_Store
+
+# 编译产物（macOS 本机）
+agent/actions/mac_ocr
