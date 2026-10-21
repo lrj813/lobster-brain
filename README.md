@@ -2,6 +2,8 @@
 
 用手机发一句自然语言，遥控你常开的电脑完成任务。手机端实时看到执行进度和结果截图。
 
+> Control your computer from your phone with a single sentence — watch live progress and results right on your screen.
+
 ## 能做什么
 
 - 搜索电影并播放（真实打开浏览器播放）
